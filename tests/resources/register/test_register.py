@@ -14,7 +14,7 @@ class RegisterTests:
     5. Registration with a missing password
     """
 
-    def test_registration_with_valid_email_and_password(self, register_uri):
+    def test_registration_request(self, register_uri):
         """
         Test user registration with a valid email and password.
 
@@ -27,17 +27,20 @@ class RegisterTests:
         Returns:
             None
         """
-        valid_user = {"email": "eve.holt@reqres.in", "password": "pistol"}
-        response = requests.post(register_uri, json=valid_user)
+        data = {"email": "eve.holt@reqres.in", "password": "pistol"}
+        response = requests.post(register_uri, json=data)
+        assert response.status_code == 200
         actual = response.json()
         expected = {
             "id": 4,
             "token": "QpwL5tke4Pnpja7X4"
         }
         assert expected == actual
-        assert response.status_code == 200
+        assert actual["id"] != None
+        assert actual["token"] != None
 
-    def test_registration_with_undefined_user(self, register_uri):
+
+    def test_unsuccessful_registration(self, register_uri, random_string):
         """
         Test user registration with an undefined user.
 
@@ -50,32 +53,14 @@ class RegisterTests:
         Returns:
             None
         """
-        user_incomplete_email = {"email": "ailey.holt@rgmail.", "password": "nicest"}
-        response = requests.post(register_uri, json=user_incomplete_email)
+        invalid_email = f"{random_string}@gmail.com"
+        data = {"email": invalid_email, "password": "nicest"}
+        response = requests.post(register_uri, json=data)
         data = response.json()
         assert data["error"] == "Note: Only defined users succeed registration"
         assert response.status_code == 400
 
-    def test_invalid_email_registration(self, register_uri):
-        """
-        Test user registration with an invalid email.
-
-        Sends a POST request to the registration endpoint with an invalid email.
-        Compares the response with the expected error message.
-
-        Args:
-            register_uri (str): The URI for user registration.
-
-        Returns:
-            None
-        """
-        user_invalid_email = {"email": "eve.holt&reqres.in", "password": "nicest"}
-        response = requests.post(register_uri, json=user_invalid_email)
-        data = response.json()
-        assert data["error"] == "Note: Only defined users succeed registration"
-        assert response.status_code == 400
-
-    def test_blank_password_registration(self, register_uri):
+    def test_unsuccessful_registration_blank_password(self, register_uri):
         """
         Test user registration with a blank password.
 
@@ -88,13 +73,14 @@ class RegisterTests:
         Returns:
             None
         """
-        user_blank_password = {"email": "eve.holt@reqres.in", "password": ""}
-        response = requests.post(register_uri, json=user_blank_password)
+        blank_password = ""
+        data = {"email": "eve.holt@reqres.in", "password": blank_password}
+        response = requests.post(register_uri, json=data)
         data = response.json()
         assert data["error"] == "Missing password"
         assert response.status_code == 400
 
-    def test_missing_password_registration(self, register_uri):
+    def test_unsuccessful_registration_missing_password(self, register_uri):
         """
         Test user registration with a missing password.
 
@@ -107,8 +93,8 @@ class RegisterTests:
         Returns:
             None
         """
-        user_no_password = {"email": "eve.holt@reqres.in"}
-        response = requests.post(register_uri, json=user_no_password)
+        data = {"email": "eve.holt@reqres.in"}
+        response = requests.post(register_uri, json=data)
         data = response.json()
         assert data["error"] == "Missing password"
         assert response.status_code == 400
