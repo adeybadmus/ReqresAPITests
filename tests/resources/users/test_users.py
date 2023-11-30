@@ -1,6 +1,7 @@
 import requests
 from pytest import mark
 
+
 @mark.user
 class UserTests:
     """
@@ -34,6 +35,8 @@ class UserTests:
         uri = f"{users_uri}/2"
         response = requests.get(uri)
         data = response.json()
+
+        # Verify that the response contains the specified user's data
         assert data["data"]["email"] == "janet.weaver@reqres.in"
         assert data["data"]["first_name"] == "Janet"
         assert response.status_code == 200
@@ -55,6 +58,8 @@ class UserTests:
         uri = f"{users_uri}/?page=2"
         response = requests.get(uri)
         data = response.json()
+
+        # Verify that the response contains data for multiple users
         assert data["page"] == 2
         assert data["data"][0]["id"] == 7
         assert data["data"][0]["first_name"] == "Michael"
@@ -78,6 +83,8 @@ class UserTests:
         uri = f"{users_uri}/800"
         response = requests.get(uri)
         data = response.json()
+
+        # Verify that the response is empty for an unavailable user
         assert data == {}
         assert response.status_code == 404
 
@@ -97,6 +104,8 @@ class UserTests:
         uri = f"{users_uri}/aaa"
         response = requests.get(uri)
         data = response.json()
+
+        # Verify that the response is empty for an invalid user
         assert data == {}
         assert response.status_code == 404
 
@@ -119,6 +128,8 @@ class UserTests:
         user = {"name": name, "Job": "Leader"}
         response = requests.post(users_uri, json=user)
         data = response.json()
+
+        # Verify that the response contains the created user's data
         assert data["name"] == name
         assert data["Job"] == "Leader"
         assert response.status_code == 201
@@ -144,6 +155,8 @@ class UserTests:
         user = {"name": name, "Job": "CEO"}
         response = requests.post(users_uri, json=user)
         data = response.json()
+
+        # Verify that the response contains the created user's data
         assert data["name"] == name
 
         user_id = data["id"]
@@ -151,11 +164,12 @@ class UserTests:
         user_update = {"name": name2, "Job": "VP"}
         update_uri = f"{users_uri}/{user_id}"
         new_response = requests.put(update_uri, json=user_update)
-
         data2 = new_response.json()
+
+        # Verify that the response contains the updated user's data
         assert data2["name"] == name2
         assert data2["Job"] == "VP"
-        assert response.status_code == 201
+        assert new_response.status_code == 200
 
     @mark.chain
     def test_delete_single_user(self, users_uri, random_string):
@@ -182,6 +196,8 @@ class UserTests:
 
         delete_uri = f"{users_uri}/{user_id}"
         response = requests.delete(delete_uri)
+
+        # Verify that the response status code indicates a successful deletion (HTTP 204 No Content)
         assert response.status_code == 204
 
     @mark.chain
@@ -205,6 +221,8 @@ class UserTests:
         user = {"name": name, "Job": "CEO"}
         response = requests.post(users_uri, json=user)
         data = response.json()
+
+        # Verify that the response contains the created user's data
         assert data["name"] == name
 
         user_id = data["id"]
@@ -213,8 +231,9 @@ class UserTests:
         update_uri = f"{users_uri}/{user_id}"
 
         new_response = requests.patch(update_uri, json=user_update)
-
         data2 = new_response.json()
+
+        # Verify that the response contains the patched user's data
         assert data2["name"] == name2
         assert data2["Job"] == "VP"
-        assert response.status_code == 201
+        assert new_response.status_code == 200

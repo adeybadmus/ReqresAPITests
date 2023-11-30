@@ -1,6 +1,7 @@
 import requests
 from pytest import mark
 
+
 @mark.resource
 class ResourceTests:
     """
@@ -27,12 +28,17 @@ class ResourceTests:
             None
         """
         response = requests.get(resource_uri)
+
+        # Check if the response status code is successful (HTTP 200 OK)
+        assert response.status_code == 200
+
         data = response.json()
+
+        # Verify that the response contains data for multiple resources
         assert data["data"][0]["name"] == "cerulean"
         assert data["data"][1]["name"] == "fuchsia rose"
         assert data["data"][2]["name"] == "true red"
         assert data["data"][3]["name"] == "aqua sky"
-        assert response.status_code == 200
 
     def test_calling_single_resource(self, resource_uri):
         """
@@ -51,9 +57,14 @@ class ResourceTests:
         valid_resource_id = "/2"
         updated_uri = f"{resource_uri}{valid_resource_id}"
         response = requests.get(updated_uri)
-        data = response.json()
-        assert data["data"]["name"] == "fuchsia rose"
+
+        # Check if the response status code is successful (HTTP 200 OK)
         assert response.status_code == 200
+
+        data = response.json()
+
+        # Verify that the response contains data for the specified resource
+        assert data["data"]["name"] == "fuchsia rose"
 
     def test_calling_invalid_resource(self, resource_uri):
         """
@@ -71,6 +82,11 @@ class ResourceTests:
         invalid_resource_id = "/4A"
         updated_uri = f"{resource_uri}{invalid_resource_id}"
         response = requests.get(updated_uri)
-        data = response.json()
-        assert data == {}
+
+        # Check if the response status code indicates a resource not found (HTTP 404 Not Found)
         assert response.status_code == 404
+
+        data = response.json()
+
+        # Verify that the response is empty for an invalid resource
+        assert data == {}
